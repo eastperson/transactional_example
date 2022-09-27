@@ -11,7 +11,7 @@ import java.io.IOException
 import java.math.BigDecimal
 
 @Component
-class CreateProductProcessor(
+class ProductProcessor(
     private val productRepository: ProductRepository,
     private val additionalProcessor: AdditionalProcessor
 ) {
@@ -39,7 +39,6 @@ class CreateProductProcessor(
     fun createWithRuntimeExceptionAndInnerMethod(id: Long, name: String, price: BigDecimal) {
         val product = Product(id = id, name = name, price = price)
         createWithInnerMethod(product)
-        throw ProductException()
     }
 
     @Transactional

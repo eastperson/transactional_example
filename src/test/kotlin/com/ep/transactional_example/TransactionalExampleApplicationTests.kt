@@ -1,6 +1,6 @@
 package com.ep.transactional_example
 
-import com.ep.transactional_example.command.CreateProductProcessor
+import com.ep.transactional_example.command.ProductProcessor
 import com.ep.transactional_example.dto.CreateAdditional
 import com.ep.transactional_example.dto.CreateProduct
 import com.ep.transactional_example.exception.NotFoundEntityException
@@ -65,7 +65,7 @@ class IntegrationTest {
     }
 
     @Autowired
-    private lateinit var productProcessor: CreateProductProcessor
+    private lateinit var productProcessor: ProductProcessor
 
     @Autowired
     private lateinit var productQuery: ProductQuery
