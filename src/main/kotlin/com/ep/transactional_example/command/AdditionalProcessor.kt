@@ -62,4 +62,12 @@ class AdditionalProcessor(
             println("Runtime Catch")
         }
     }
+
+    fun createWithRuntimeExceptionWithoutTransactional(createAdditionalList: List<CreateAdditional>) {
+        createAdditionalList.forEach {
+            val additional = Additional(id = it.id, quantity = it.quantity, name = it.name, price = it.price)
+            additionalRepository.save(additional)
+        }
+        throw AdditionalException()
+    }
 }

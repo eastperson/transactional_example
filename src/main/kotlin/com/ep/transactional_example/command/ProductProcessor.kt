@@ -112,6 +112,17 @@ class ProductProcessor(
     }
 
     @Transactional
+    fun createWithChildMethod(createProduct: CreateProduct) {
+        val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
+        productRepository.save(product)
+        try {
+            additionalProcessor.createWithRuntimeExceptionWithoutTransactional(createProduct.createAdditionalList)
+        } catch (e: RuntimeException) {
+            println("RuntimeException catch")
+        }
+    }
+
+    @Transactional
     fun updateNameForRollbackMark(productId: Long, productName: String, additionalId: Long, additionalName: String) {
         val product = productRepository.read(productId)
         product.updateName(productName)

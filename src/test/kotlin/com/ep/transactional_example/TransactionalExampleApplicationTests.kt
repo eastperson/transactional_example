@@ -219,4 +219,18 @@ class IntegrationTest {
         val updatedAdditional = additionalQuery.read(id)
         assertThat(updatedAdditional.name).isEqualTo("additional name")
     }
+
+    @Test
+    fun `case-13 | 트랜잭션 예외 발생 try-catch | 트랜잭션 전파 속성`() {
+        val id = 13L
+        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+
+        productProcessor.createWithChildMethod(createProduct)
+
+        val newProduct = productQuery.read(id)
+        assertThat(newProduct.id).isEqualTo(id)
+        assertThrows<NotFoundEntityException> { additionalQuery.read(id) }
+    }
+
 }
