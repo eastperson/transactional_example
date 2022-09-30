@@ -6,10 +6,10 @@ data class CreateProduct(
     val id: Long,
     val name: String,
     val price: BigDecimal,
-    val createAdditionalList: List<CreateAdditional> = listOf()
+    val createAddition: List<CreateAddition> = listOf()
 )
 
-data class CreateAdditional(
+data class CreateAddition(
     val id: Long,
     val quantity: Long,
     val name: String,

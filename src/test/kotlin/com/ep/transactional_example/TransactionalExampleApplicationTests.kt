@@ -1,11 +1,11 @@
 package com.ep.transactional_example
 
 import com.ep.transactional_example.command.ProductProcessor
-import com.ep.transactional_example.dto.CreateAdditional
+import com.ep.transactional_example.dto.CreateAddition
 import com.ep.transactional_example.dto.CreateProduct
 import com.ep.transactional_example.exception.NotFoundEntityException
 import com.ep.transactional_example.exception.ProductException
-import com.ep.transactional_example.query.AdditionalQuery
+import com.ep.transactional_example.query.AdditionQuery
 import com.ep.transactional_example.query.ProductQuery
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.ClassRule
@@ -71,7 +71,7 @@ class IntegrationTest {
     private lateinit var productQuery: ProductQuery
 
     @Autowired
-    private lateinit var additionalQuery: AdditionalQuery
+    private lateinit var additionQuery: AdditionQuery
 
     @Test
     fun `case-1 | 정상 처리(commit)`() {
@@ -88,11 +88,10 @@ class IntegrationTest {
         assertThrows<NotFoundEntityException> { productQuery.read(id) }
     }
 
-    // https://eocoding.tistory.com/94
     @Test
-    fun `case-3 | 롤백이 왜 안되지? | 프록시 객체와 Spring AOP`() {
+    fun `case-3 | 트랜잭션 Exception catch | 트랜잭션 Exception`() {
         val id = 3L
-        assertThrows<ProductException> { productProcessor.createWithRuntimeExceptionAndInnerMethod(id, "product name", BigDecimal.valueOf(10_000)) }
+        productProcessor.createForExceptionCatch(id, "product name", BigDecimal.valueOf(10_000))
         val newProduct = productQuery.read(id)
         assertThat(newProduct.id).isEqualTo(id)
     }
@@ -100,137 +99,139 @@ class IntegrationTest {
     @Test
     fun `case-4 | 트랜잭션 병합(REQUIRED) 정상처리`() {
         val id = 4L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
         productProcessor.create(createProduct)
 
         val newProduct = productQuery.read(id)
         assertThat(newProduct.id).isEqualTo(id)
 
-        val newAdditional1 = additionalQuery.read(id)
-        assertThat(newAdditional1.id).isEqualTo(id)
+        val newAddition = additionQuery.read(id)
+        assertThat(newAddition.id).isEqualTo(id)
     }
 
     @Test
-    fun `case-5 | 트랜잭션 Exception catch | 트랜잭션 Exception`() {
+    fun `case-5 | 트랜잭션 병합 Exception catch | 트랜잭션 Exception`() {
         val id = 5L
-        productProcessor.createForExceptionCatch(id, "product name", BigDecimal.valueOf(10_000))
-        val newProduct = productQuery.read(id)
-        assertThat(newProduct.id).isEqualTo(id)
-    }
-
-    @Test
-    fun `case-6 | 트랜잭션 병합 Exception catch | 트랜잭션 Exception`() {
-        val id = 6L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
 
         productProcessor.createForRequiredExceptionCatch(createProduct)
 
         val newProduct = productQuery.read(id)
         assertThat(newProduct.id).isEqualTo(id)
 
-        val newAdditional1 = additionalQuery.read(id)
-        assertThat(newAdditional1.id).isEqualTo(id)
+        val newAddition = additionQuery.read(id)
+        assertThat(newAddition.id).isEqualTo(id)
+    }
+
+    @Test
+    fun `case-6 | 트랜잭션 예외 발생 try-catch | 트랜잭션 전파 속성`() {
+        val id = 6L
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
+
+        productProcessor.createWithChildMethod(createProduct)
+
+        val newProduct = productQuery.read(id)
+        assertThat(newProduct.id).isEqualTo(id)
+
+        val newAddition = additionQuery.read(id)
+        assertThat(newAddition.id).isEqualTo(id)
+    }
+
+    // https://eocoding.tistory.com/94
+    @Test
+    fun `case-7 | 롤백이 왜 안되지? | 프록시 객체와 Spring AOP`() {
+        val id = 7L
+        assertThrows<ProductException> { productProcessor.createWithRuntimeExceptionAndInnerMethod(id, "product name", BigDecimal.valueOf(10_000)) }
+        val newProduct = productQuery.read(id)
+        assertThat(newProduct.id).isEqualTo(id)
     }
 
     // https://techblog.woowahan.com/2606/
     @Test
-    fun `case-7 | 트랜잭션 병합 UnexpectedRollbackException 예외 발생 | 트랜잭션 전파 속성`() {
-        val id = 7L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+    fun `case-8 | 트랜잭션 병합 UnexpectedRollbackException 예외 발생 | 트랜잭션 전파 속성`() {
+        val id = 8L
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
 
         assertThrows<UnexpectedRollbackException> { productProcessor.createForRequiredRollback(createProduct) }
 
         assertThrows<NotFoundEntityException> { productQuery.read(id) }
-        assertThrows<NotFoundEntityException> { additionalQuery.read(id) }
+        assertThrows<NotFoundEntityException> { additionQuery.read(id) }
     }
 
     @Test
-    fun `case-8 | 트랜잭션 분리(REQUIRES_NEW) 롤백 | 트랜잭션 전파 속성`() {
-        val id = 8L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+    fun `case-9 | 트랜잭션 분리(REQUIRES_NEW) 롤백 | 트랜잭션 전파 속성`() {
+        val id = 9L
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
 
         productProcessor.createForRequiresNewRollback(createProduct)
 
         val newProduct = productQuery.read(id)
         assertThat(newProduct.id).isEqualTo(id)
 
-        assertThrows<NotFoundEntityException> { additionalQuery.read(id) }
-    }
-
-    @Test
-    fun `case-9 | 트랜잭션 noRollbackFor | 트랜잭션 전파 속성`() {
-        val id = 9L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
-
-        assertThrows<ProductException> { productProcessor.createForRequiresNewNoRollbackFor(createProduct) }
-
-        val newProduct = productQuery.read(id)
-        assertThat(newProduct.id).isEqualTo(id)
-
-        val newAdditional1 = additionalQuery.read(id)
-        assertThat(newAdditional1.id).isEqualTo(id)
+        assertThrows<NotFoundEntityException> { additionQuery.read(id) }
     }
 
     @Test
     fun `case-10 | 이건 왜 롤백이 안되지? | 트랜잭션 CheckedException`() {
         val id = 10L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
 
         assertThrows<IOException> { productProcessor.createWithCheckedException(createProduct) }
 
         val newProduct = productQuery.read(id)
         assertThat(newProduct.id).isEqualTo(id)
 
-        val newAdditional1 = additionalQuery.read(id)
-        assertThat(newAdditional1.id).isEqualTo(id)
+        val newAddition = additionQuery.read(id)
+        assertThat(newAddition.id).isEqualTo(id)
     }
 
     @Test
     fun `case-11 | 트랜잭션 RollbackFor | 트랜잭션 CheckedException`() {
         val id = 11L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
 
         assertThrows<IOException> { productProcessor.createWithCheckedExceptionRollbackFor(createProduct) }
         assertThrows<NotFoundEntityException> { productQuery.read(id) }
-        assertThrows<NotFoundEntityException> { additionalQuery.read(id) }
+        assertThrows<NotFoundEntityException> { additionQuery.read(id) }
     }
 
     @Test
-    fun `case-12 | 이게 왜 롤백이 되지? | DataIntegrityViolationException, dirty checking`() {
+    fun `case-12 | 트랜잭션 noRollbackFor | 트랜잭션 전파 속성`() {
+        val id = 9L
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
+
+        assertThrows<ProductException> { productProcessor.createForRequiresNewNoRollbackFor(createProduct) }
+
+        val newProduct = productQuery.read(id)
+        assertThat(newProduct.id).isEqualTo(id)
+
+        val newAddition = additionQuery.read(id)
+        assertThat(newAddition.id).isEqualTo(id)
+    }
+
+    @Test
+    fun `case-13 | 이게 왜 롤백이 되지? | DataIntegrityViolationException, dirty checking`() {
         val id = 12L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
+        val addition = CreateAddition(id, 2, "addition name", BigDecimal.valueOf(5_000))
+        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(addition))
         productProcessor.create(createProduct)
         val newProduct = productQuery.read(id)
         assertThat(newProduct.id).isEqualTo(id)
 
-        assertThrows<DataIntegrityViolationException> { productProcessor.updateNameForRollbackMark(productId = id, productName = "updated product name", additionalId = id, additionalName = "updated additional name updated additional name") }
+        assertThrows<DataIntegrityViolationException> { productProcessor.updateNameForRollbackMark(productId = id, productName = "updated product name", additionId = id, additionName = "updated addition name updated addition name") }
 
         val updatedProduct = productQuery.read(id)
         assertThat(updatedProduct.name).isEqualTo("product name")
 
-        val updatedAdditional = additionalQuery.read(id)
-        assertThat(updatedAdditional.name).isEqualTo("additional name")
+        val updatedAddition = additionQuery.read(id)
+        assertThat(updatedAddition.name).isEqualTo("addition name")
     }
-
-    @Test
-    fun `case-13 | 트랜잭션 예외 발생 try-catch | 트랜잭션 전파 속성`() {
-        val id = 13L
-        val additional = CreateAdditional(id, 2, "additional name", BigDecimal.valueOf(5_000))
-        val createProduct = CreateProduct(id, "product name", BigDecimal.valueOf(10_000), listOf(additional))
-
-        productProcessor.createWithChildMethod(createProduct)
-
-        val newProduct = productQuery.read(id)
-        assertThat(newProduct.id).isEqualTo(id)
-        assertThrows<NotFoundEntityException> { additionalQuery.read(id) }
-    }
-
 }

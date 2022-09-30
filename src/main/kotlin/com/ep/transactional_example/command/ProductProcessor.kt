@@ -13,7 +13,7 @@ import java.math.BigDecimal
 @Component
 class ProductProcessor(
     private val productRepository: ProductRepository,
-    private val additionalProcessor: AdditionalProcessor
+    private val additionProcessor: AdditionProcessor
 ) {
 
     @Transactional
@@ -26,7 +26,7 @@ class ProductProcessor(
     fun create(createProduct: CreateProduct) {
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
-        additionalProcessor.create(createProduct.createAdditionalList)
+        additionProcessor.create(createProduct.createAddition)
     }
 
     @Transactional
@@ -62,7 +62,7 @@ class ProductProcessor(
     fun createForRequiredExceptionCatch(createProduct: CreateProduct) {
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
-        additionalProcessor.createForRequiredExceptionCatch(createProduct.createAdditionalList)
+        additionProcessor.createForRequiredExceptionCatch(createProduct.createAddition)
     }
 
     @Transactional
@@ -70,7 +70,7 @@ class ProductProcessor(
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
         try {
-            additionalProcessor.createForRequiredRollback(createProduct.createAdditionalList)
+            additionProcessor.createForRequiredRollback(createProduct.createAddition)
         } catch (e: RuntimeException) {
             println("RuntimeException catch")
         }
@@ -81,7 +81,7 @@ class ProductProcessor(
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
         try {
-            additionalProcessor.createForRequiresNewRollback(createProduct.createAdditionalList)
+            additionProcessor.createForRequiresNewRollback(createProduct.createAddition)
         } catch (e: RuntimeException) {
             println("RuntimeException catch")
         }
@@ -91,7 +91,7 @@ class ProductProcessor(
     fun createForRequiresNewNoRollbackFor(createProduct: CreateProduct) {
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
-        additionalProcessor.create(createProduct.createAdditionalList)
+        additionProcessor.create(createProduct.createAddition)
         throw ProductException()
     }
 
@@ -99,7 +99,7 @@ class ProductProcessor(
     fun createWithCheckedException(createProduct: CreateProduct) {
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
-        additionalProcessor.create(createProduct.createAdditionalList)
+        additionProcessor.create(createProduct.createAddition)
         throw IOException()
     }
 
@@ -107,7 +107,7 @@ class ProductProcessor(
     fun createWithCheckedExceptionRollbackFor(createProduct: CreateProduct) {
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
-        additionalProcessor.create(createProduct.createAdditionalList)
+        additionProcessor.create(createProduct.createAddition)
         throw IOException()
     }
 
@@ -116,16 +116,16 @@ class ProductProcessor(
         val product = Product(id = createProduct.id, name = createProduct.name, price = createProduct.price)
         productRepository.save(product)
         try {
-            additionalProcessor.createWithRuntimeExceptionWithoutTransactional(createProduct.createAdditionalList)
+            additionProcessor.createWithRuntimeExceptionWithoutTransactional(createProduct.createAddition)
         } catch (e: RuntimeException) {
             println("RuntimeException catch")
         }
     }
 
     @Transactional
-    fun updateNameForRollbackMark(productId: Long, productName: String, additionalId: Long, additionalName: String) {
+    fun updateNameForRollbackMark(productId: Long, productName: String, additionId: Long, additionName: String) {
         val product = productRepository.read(productId)
         product.updateName(productName)
-        additionalProcessor.updateNameForRollbackMark(additionalId, additionalName)
+        additionProcessor.updateNameForRollbackMark(additionId, additionName)
     }
 }
