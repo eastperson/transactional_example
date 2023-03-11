@@ -1,10 +1,10 @@
-package com.ep.transactional_example.command
+package com.ep.transactional_example.propagation.command
 
-import com.ep.transactional_example.domain.Product
-import com.ep.transactional_example.dto.CreateProduct
-import com.ep.transactional_example.exception.ProductException
-import com.ep.transactional_example.repository.ProductRepository
-import com.ep.transactional_example.repository.read
+import com.ep.transactional_example.propagation.domain.Product
+import com.ep.transactional_example.propagation.dto.CreateProduct
+import com.ep.transactional_example.propagation.exception.ProductException
+import com.ep.transactional_example.propagation.repository.ProductRepository
+import com.ep.transactional_example.propagation.repository.read
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException

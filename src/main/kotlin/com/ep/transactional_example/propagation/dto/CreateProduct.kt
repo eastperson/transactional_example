@@ -1,4 +1,4 @@
-package com.ep.transactional_example.dto
+package com.ep.transactional_example.propagation.dto
 
 import java.math.BigDecimal
 

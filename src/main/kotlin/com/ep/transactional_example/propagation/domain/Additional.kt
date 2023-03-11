@@ -1,4 +1,4 @@
-package com.ep.transactional_example.domain
+package com.ep.transactional_example.propagation.domain
 
 import java.math.BigDecimal
 import javax.persistence.Column

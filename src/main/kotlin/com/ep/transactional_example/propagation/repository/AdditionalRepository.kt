@@ -1,7 +1,7 @@
-package com.ep.transactional_example.repository
+package com.ep.transactional_example.propagation.repository
 
-import com.ep.transactional_example.domain.Additional
-import com.ep.transactional_example.exception.NotFoundEntityException
+import com.ep.transactional_example.propagation.domain.Additional
+import com.ep.transactional_example.propagation.exception.NotFoundEntityException
 import org.springframework.data.jpa.repository.JpaRepository
 
 fun AdditionalRepository.read(id: Long): Additional {

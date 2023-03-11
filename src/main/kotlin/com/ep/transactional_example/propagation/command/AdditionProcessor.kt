@@ -1,10 +1,10 @@
-package com.ep.transactional_example.command
+package com.ep.transactional_example.propagation.command
 
-import com.ep.transactional_example.domain.Addition
-import com.ep.transactional_example.dto.CreateAddition
-import com.ep.transactional_example.exception.AdditionException
-import com.ep.transactional_example.repository.AdditionRepository
-import com.ep.transactional_example.repository.read
+import com.ep.transactional_example.propagation.domain.Addition
+import com.ep.transactional_example.propagation.dto.CreateAddition
+import com.ep.transactional_example.propagation.exception.AdditionException
+import com.ep.transactional_example.propagation.repository.AdditionRepository
+import com.ep.transactional_example.propagation.repository.read
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional

@@ -1,7 +1,7 @@
-package com.ep.transactional_example.query
+package com.ep.transactional_example.propagation.query
 
-import com.ep.transactional_example.repository.ProductRepository
-import com.ep.transactional_example.repository.read
+import com.ep.transactional_example.propagation.repository.ProductRepository
+import com.ep.transactional_example.propagation.repository.read
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
