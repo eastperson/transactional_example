@@ -3,8 +3,8 @@ package com.ep.transactional_example
 import com.ep.transactional_example.propagation.command.ProductProcessor
 import com.ep.transactional_example.propagation.dto.CreateAddition
 import com.ep.transactional_example.propagation.dto.CreateProduct
-import com.ep.transactional_example.propagation.exception.NotFoundEntityException
-import com.ep.transactional_example.propagation.exception.ProductException
+import com.ep.transactional_example.exception.NotFoundEntityException
+import com.ep.transactional_example.exception.ProductException
 import com.ep.transactional_example.propagation.query.AdditionQuery
 import com.ep.transactional_example.propagation.query.ProductQuery
 import org.assertj.core.api.Assertions.assertThat

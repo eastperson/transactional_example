@@ -1,8 +1,8 @@
 package com.ep.transactional_example.propagation.command
 
 import com.ep.transactional_example.propagation.domain.Additional
-import com.ep.transactional_example.dto.CreateAdditional
-import com.ep.transactional_example.propagation.exception.AdditionalException
+import com.ep.transactional_example.exception.AdditionalException
+import com.ep.transactional_example.propagation.dto.CreateAddition
 import com.ep.transactional_example.propagation.repository.AdditionalRepository
 import com.ep.transactional_example.propagation.repository.read
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ class AdditionalProcessor(
 ) {
 
     @Transactional(propagation = Propagation.REQUIRED)
-    fun create(createAdditionalList: List<CreateAdditional>) {
+    fun create(createAdditionalList: List<CreateAddition>) {
         createAdditionalList.forEach {
             val additional = Additional(id = it.id, quantity = it.quantity, name = it.name, price = it.price)
             additionalRepository.save(additional)
@@ -23,7 +23,7 @@ class AdditionalProcessor(
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    fun createForRequiredExceptionCatch(createAdditionalList: List<CreateAdditional>) {
+    fun createForRequiredExceptionCatch(createAdditionalList: List<CreateAddition>) {
         createAdditionalList.forEach {
             val additional = Additional(id = it.id, quantity = it.quantity, name = it.name, price = it.price)
             additionalRepository.save(additional)
@@ -36,7 +36,7 @@ class AdditionalProcessor(
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    fun createForRequiredRollback(createAdditionalList: List<CreateAdditional>) {
+    fun createForRequiredRollback(createAdditionalList: List<CreateAddition>) {
         createAdditionalList.forEach {
             val additional = Additional(id = it.id, quantity = it.quantity, name = it.name, price = it.price)
             additionalRepository.save(additional)
@@ -45,7 +45,7 @@ class AdditionalProcessor(
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun createForRequiresNewRollback(createAdditionalList: List<CreateAdditional>) {
+    fun createForRequiresNewRollback(createAdditionalList: List<CreateAddition>) {
         createAdditionalList.forEach {
             val additional = Additional(id = it.id, quantity = it.quantity, name = it.name, price = it.price)
             additionalRepository.save(additional)
@@ -63,7 +63,7 @@ class AdditionalProcessor(
         }
     }
 
-    fun createWithRuntimeExceptionWithoutTransactional(createAdditionalList: List<CreateAdditional>) {
+    fun createWithRuntimeExceptionWithoutTransactional(createAdditionalList: List<CreateAddition>) {
         createAdditionalList.forEach {
             val additional = Additional(id = it.id, quantity = it.quantity, name = it.name, price = it.price)
             additionalRepository.save(additional)
